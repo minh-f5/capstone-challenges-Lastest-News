@@ -39,7 +39,7 @@ Clone the repository:
 
 bash
 Copy code
-git clone https://github.com/yourusername/RTBF-news-scraper.git
+git clone 
 cd RTBF-news-scraper
 Install the required packages:
 
@@ -119,6 +119,6 @@ Implement LDA: Add another model (Latent Dirichlet Allocation) for topic modelin
 Automate Scraping Frequency: Enable scheduled scraping for continuous updates.
 
 
-Check out my app built with [Streamlit 🌐](https://minh-f5-capstone-challenges-lastest-news-dashboard-6rc4lh.streamlit.app/).
+Check out my app built with [Streamlit 🌐](https://minh-f5-capstone-challenges-lastest-news-app-y0psdd.streamlit.app/).
 
 ![Breaking News GIF](https://media.giphy.com/media/6H9Oqec3e7cFuHzr4K/giphy.gif)
