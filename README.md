@@ -86,7 +86,7 @@ Clone the repository:
 
 bash
 Copy code
-git clone https://github.com/yourusername/RTBF-news-scraper.git
+git clone
 cd RTBF-news-scraper
 Install the required packages:
 
@@ -117,5 +117,8 @@ After scraping, the model identifies 5 main topics from the articles, showing th
 Enhance NLP Preprocessing: Add lemmatization and stemming to refine text analysis.
 Implement LDA: Add another model (Latent Dirichlet Allocation) for topic modeling comparison.
 Automate Scraping Frequency: Enable scheduled scraping for continuous updates.
+
+
+Check out my app built with [Streamlit 🌐](https://minh-f5-capstone-challenges-lastest-news-dashboard-6rc4lh.streamlit.app/).
 
 ![Breaking News GIF](https://media.giphy.com/media/6H9Oqec3e7cFuHzr4K/giphy.gif)
