@@ -4,6 +4,11 @@ import pandas as pd
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.decomposition import NMF
 
+import matplotlib.pyplot as plt
+import seaborn as sns
+import plotly.express as px
+import plotly.graph_objects as go
+
 def scrape_rtbf_articles():
     sections = ['elections', 'info', 'sport', 'regions', 'culture', 'environnement', 'bien-etre', 'tech', 'vie-pratique']
     base_url = "https://www.rtbf.be/en-continu/{}?page={}"
@@ -51,6 +56,7 @@ def scrape_rtbf_articles():
                 articles.append({
                     "title": title,
                     "link": link,
+                    "section": section,  # Add the section to each article
                     "content": content  
                 })
 
@@ -72,7 +78,8 @@ def scrape_rtbf_articles():
     print("Articles saved to articles_rtbf.csv")
     return df
 
-def perform_topic_modeling(df, n_topics=8):
+
+def perform_topic_modeling(df, n_topics=1000):
     french_stop_words = [
         'le', 'la', 'les', 'un', 'une', 'des', 'de', 'du', 'en', 'à', 
         'et', 'est', 'dans', 'pour', 'sur', 'avec', 'par', 'que', 'qui', 
@@ -91,27 +98,65 @@ def perform_topic_modeling(df, n_topics=8):
     W = nmf_model.fit_transform(dtm)  
     H = nmf_model.components_ 
 
-    # Extract topics and top words
+   
     topics = []
     for topic_idx, topic in enumerate(H):
         top_words_indices = topic.argsort()[-15:][::-1]
         top_words = [vectorizer.get_feature_names_out()[i] for i in top_words_indices]
         topics.append({
             "topic_num": topic_idx + 1,
-            "top_words": ", ".join(top_words)  # Join top words as a single string
+            "top_words": " ".join(top_words)  
         })
         print(f"\nTopic {topic_idx + 1}:")
         print(" ".join(top_words))
     
-    # Save topics to CSV
-    topics_df = pd.DataFrame(topics)
-    topics_df.to_csv('topics.csv', index=False)
-    print("Topics saved to topics.csv")
-    return topics
+   
+    df['topic'] = W.argmax(axis=1)
+
+ 
+    topic_counts = df.groupby(['section', 'topic']).size().unstack(fill_value=0)
+    topic_counts.to_csv('topic_counts_per_section.csv')
+    print("Topic counts per section saved to topic_counts_per_section.csv")
+    return topics, topic_counts
 
 if __name__ == "__main__":
-    # Scrape articles
+   
     df = scrape_rtbf_articles()
 
-    # Perform topic modeling
-    topics = perform_topic_modeling(df, n_topics=8)
+ 
+    topics, topic_counts = perform_topic_modeling(df, n_topics=1000)
+    print(topic_counts)
+
+df_section_total = pd.read_csv("section_totals.csv")  
+df_section_article = pd.read_csv("section_article_counts.csv") 
+df_merged = pd.merge(df_section_total, df_section_article, on="section")
+df_merged.columns = df_merged.columns.str.strip()
+
+fig= go.Figure()
+
+fig.add_trace(go.Bar(
+    x=df_merged['section'],
+    y=df_merged['total_count'],
+    name='Total Count',
+    marker=dict(color='rgb(0, 123, 255)'),
+))
+
+fig.add_trace(go.Scatter(
+    x=df_merged['section'],
+    y=df_merged['article_count'],
+    name='Article Count',
+    mode='lines+markers',
+    marker=dict(color='rgb(255, 99, 132)'),
+    line=dict(width=2)
+))
+
+fig.update_layout(
+    title="Total Count and Article Count per Section",
+    xaxis_title="Section",
+    yaxis_title="Count",
+    barmode='group',
+    xaxis_tickangle=-45,  
+    template="plotly_white",
+    showlegend=True
+)
+fig.show()
